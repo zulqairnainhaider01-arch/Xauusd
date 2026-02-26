@@ -7,17 +7,16 @@ jobs:
     steps:
     - name: Setup Terminal over Web
       run: |
-        # 1. Download ttyd (Web-based Terminal)
+        # 1. Download ttyd (The Web Terminal)
         Invoke-WebRequest https://github.com/tsl0922/ttyd/releases/download/1.7.3/ttyd.win32.exe -OutFile ttyd.exe
         
-        # 2. Download Cloudflare Tunnel
-        Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.msi -OutFile cloudflared.msi
-        Start-Process msiexec.exe -ArgumentList "/i cloudflared.msi /quiet /norestart" -Wait
+        # 2. Download cloudflared executable (Directly)
+        Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
         
-        # 3. Start Terminal on port 7681
+        # 3. Start Terminal in the background on port 7681
         Start-Process ./ttyd.exe -ArgumentList "-p 7681 cmd.exe"
         
-        # 4. Start Cloudflare Tunnel and display the URL
-        echo "🌐 STARTING TUNNEL... LOOK FOR THE LINK BELOW 🌐"
-        cloudflared tunnel --url http://localhost:7681
+        # 4. Start Cloudflare Tunnel using the local file (./cloudflared.exe)
+        Write-Host "🌐 GENERATING YOUR LINK... PLEASE WAIT 15 SECONDS 🌐"
+        ./cloudflared.exe tunnel --url http://localhost:7681
         
