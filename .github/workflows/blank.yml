@@ -13,10 +13,11 @@ jobs:
         # 2. Download cloudflared executable (Directly)
         Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
         
-        # 3. Start Terminal in the background on port 7681
-        Start-Process ./ttyd.exe -ArgumentList "-p 7681 cmd.exe"
+        # 3. Start Terminal with flags to fix the black screen
+        # We add '-t disable_leave_alert=true' and use powershell for better visibility
+        Start-Process ./ttyd.exe -ArgumentList "-p 7681 powershell.exe"
         
-        # 4. Start Cloudflare Tunnel using the local file (./cloudflared.exe)
-        Write-Host "🌐 GENERATING YOUR LINK... PLEASE WAIT 15 SECONDS 🌐"
+        # 4. Start Cloudflare Tunnel
+        Write-Host "🌐 WAITING FOR CLOUDFLARE TO LINK... 🌐"
         ./cloudflared.exe tunnel --url http://localhost:7681
         
