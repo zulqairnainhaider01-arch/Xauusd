@@ -1,23 +1,27 @@
-name: Windows-Terminal-Cloudflare
+name: Ubuntu-Terminal-Proxy
 on: workflow_dispatch
 
 jobs:
-  terminal:
-    runs-on: windows-latest
+  proxy:
+    runs-on: ubuntu-latest
     steps:
-    - name: Setup Terminal over Web
+    - name: Setup Tools
       run: |
-        # 1. Download ttyd (The Web Terminal)
-        Invoke-WebRequest https://github.com/tsl0922/ttyd/releases/download/1.7.3/ttyd.win32.exe -OutFile ttyd.exe
+        # 1. Install ttyd and cloudflared
+        sudo apt-get update
+        sudo apt-get install -y ttyd
+        curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 -o cloudflared
+        chmod +x cloudflared
         
-        # 2. Download cloudflared executable (Directly)
-        Invoke-WebRequest https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe -OutFile cloudflared.exe
-        
-        # 3. Start Terminal with flags to fix the black screen
-        # We add '-t disable_leave_alert=true' and use powershell for better visibility
-        Start-Process ./ttyd.exe -ArgumentList "-p 7681 powershell.exe"
-        
+        # 2. Download Gost (High-speed Proxy)
+        curl -L https://github.com/go-gost/gost/releases/download/v2.11.5/gost-linux-amd64-2.11.5.gz | gunzip > gost
+        chmod +x gost
+
+        # 3. Start Terminal on port 7681 in the background
+        # We use 'bash' here instead of 'cmd' because this is Linux
+        ttyd -p 7681 bash &
+
         # 4. Start Cloudflare Tunnel
-        Write-Host "🌐 WAITING FOR CLOUDFLARE TO LINK... 🌐"
-        ./cloudflared.exe tunnel --url http://localhost:7681
+        echo "🌐 YOUR TERMINAL LINK WILL APPEAR BELOW 🌐"
+        ./cloudflared tunnel --url http://localhost:7681
         
